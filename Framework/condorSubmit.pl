@@ -112,7 +112,8 @@ sub SubmitCondorJobRawData{
 		"-append 'error      = $dataPath/Logs/System/err.\$(Process)' ".
 		"-append 'transfer_input_files = $dataPath/Input/job\$(Process).txt, Framework/xmlStatistics.pl, Framework/rootlogon.C, archive.tar.gz' ".
 		"-append 'arguments = \$(Process) $dataPath/' ".
-		"-append 'request_disk = 40000000' ".
+		"-append 'request_disk = 60000000' ".
+		"-append 'request_memory = 3.5 GB' ".
 		"-append 'queue $n' $submitFile";
 
 	#print "$submitCommand\n";

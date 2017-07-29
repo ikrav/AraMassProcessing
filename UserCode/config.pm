@@ -23,7 +23,7 @@ $init{'MODE'}=$DEFAULT_MODE;
 
 # default results path (relative part is allowed)
 #$DEFAULT_RESULTS_PATH = "./Data/";
-$DEFAULT_RESULTS_PATH = "/data/user/cbora/";
+$DEFAULT_RESULTS_PATH = "/data/user/aschultz/L0_Pro/";
 $init{'RESULTS_PATH'} = $DEFAULT_RESULTS_PATH;
 
 
@@ -36,7 +36,7 @@ $init{'TRY_LENGTH'} = 300;	# 5 min
 # default email addresses to send report about processing results
 # escape [at] symbol with a backslash (\@)
 # list multiple addresses using comma (test1\@wisc.edu, test2\@wisc.edu)
-$DEFAULT_EMAILS = "borachristian\@gmail.com";#"borachristian\@gmail.com";
+$DEFAULT_EMAILS = "andjshultz\@gmail.com";#"borachristian\@gmail.com";
 $init{'EMAILS'} = $DEFAULT_EMAILS;
 
 #execution time of a single job
@@ -64,7 +64,7 @@ $init{'DATA_PATH'} = $DEFAULT_DATA_PATH;
 
 
 # default maximum input file to run in one condor-job
-$DEFAULT_FILE_LIMIT = 5;
+$DEFAULT_FILE_LIMIT = 1;
 $init{'FILE_LIMIT'} = $DEFAULT_FILE_LIMIT;
 
 
@@ -72,7 +72,7 @@ $init{'FILE_LIMIT'} = $DEFAULT_FILE_LIMIT;
 #            ARASIM Mode configuration
 #************************************************
 #where AraSim is installed
-$DEFAULT_ARASIM_DIR ="/home/cbora/Software/AraSim/";
+$DEFAULT_ARASIM_DIR ="/data/user/aschultz/Software/AraSim2/AraSim/trunk/";
 $init{'ARASIM_DIR'}=$DEFAULT_ARASIM_DIR;
 
 
@@ -84,17 +84,6 @@ $init{'SIZE_LIMIT'}=$DEFAULT_SIZE_LIMIT;
 
 #Number of sections/job (the same setup file will be used on all condor jobs) -
 # make sure the random generator is on to avoid generation of duplicated data on all nodes
-$DEFAULT_NUMBER_SECTION=4;
+$DEFAULT_NUMBER_SECTION=10;
 $init{'NUMBER_SECTION'}=$DEFAULT_NUMBER_SECTION;
-
-
-
-
-
-
-
-
-
-
-
 
