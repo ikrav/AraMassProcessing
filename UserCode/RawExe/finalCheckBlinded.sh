@@ -9,7 +9,7 @@ if [ $# -gt 0 ]
 then
     allfile=(`cat $1`)
 else
-    allfile=(`cat okayToProcessARA${STATIONNUM}.txt`)
+    allfile=(`cat $ARAMASSPROCESS/UserCode/RawExe/Outputs/okayToProcessARA${STATIONNUM}.txt`)
 fi
 
 if [ $# -gt 1 ]
@@ -36,8 +36,6 @@ CleanRemoveFiles() {
 }
 
 END_DIR1=/data/exp/ARA/${DATAYEAR}/blinded/L1/ARA${STATIONNUM}
-END_DIR2=/data/exp/ARA/${DATAYEAR}/unblinded/L1/ARA${STATIONNUM}
-#END_DIR2=/data/exp/ARA/${DATAYEAR}/unblinded/ARA${STATIONNUM}
 
 totcnt=${#allfile[@]}
 cnt=0

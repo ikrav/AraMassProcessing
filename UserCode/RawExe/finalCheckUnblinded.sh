@@ -5,25 +5,21 @@ source $ARAMASSPROCESS/UserCode/RawExe/processingVariables.sh
 
 #user input (not needed): (1)inputFiles  (2)outputFileNameBlinded
 
-echo "#######################################################"
-echo "# RUNNING FINAL CHECK #################################"
-echo "#######################################################"
-
 if [ $# -gt 0 ]
 then
     allfile=(`cat $1`)
 else
-    allfile=(`cat okayToProcessARA${STATIONNUM}.txt`)
+    allfile=(`cat $ARAMASSPROCESS/UserCode/RawExe/Outputs/okayToProcessARA${STATIONNUM}.txt`)
 fi
 
 if [ $# -gt 1 ]
 then
-    allprobsten=$2
+    allprobs=$2
 else
-    allprobsten=$ARAMASSPROCESS/UserCode/RawExe/Outputs/problemFiles.Unblinded.${DATAYEAR}.ARA${STATIONNUM}.txt
+    allprobs=$ARAMASSPROCESS/UserCode/RawExe/Outputs/problemFiles.Blinded.${DATAYEAR}.ARA${STATIONNUM}.txt
 fi
 
-if [ -f $allprobsten ] ; then rm $allprobsten ; fi
+if [ -f $allprobs ] ; then rm $allprobs ; fi
 
 CompareGreaterThan() {
     awk "BEGIN {if ($1>$2) printf 1; else printf 0;}"
@@ -39,15 +35,13 @@ CleanRemoveFiles() {
     done
 }
 
-END_DIR1=/data/exp/ARA/${DATAYEAR}/blinded/L1/ARA${STATIONNUM}
-END_DIR2=/data/exp/ARA/${DATAYEAR}/unblinded/L1/ARA${STATIONNUM}
+END_DIR1=/data/exp/ARA/${DATAYEAR}/unblinded/L1/ARA${STATIONNUM}
 
 totcnt=${#allfile[@]}
 cnt=0
 
 #temps
 allpedes=tempPedes.txt
-
 allevent=tempEvent.txt
 alleventhk=tempEventHk.txt
 allsensorhk=tempSensorHk.txt
@@ -57,19 +51,9 @@ allrunstart=tempRunStart.txt
 allrunstop=tempRunStop.txt
 alldirect=tempDirect.txt
 
-allevent10=tempEvent10.txt
-alleventhk10=tempEventHk10.txt
-allsensorhk10=tempSensorHk10.txt
-allconfig10=tempConfig10.txt
-allmonitor10=tempMonitor10.txt
-allrunstart10=tempRunStart10.txt
-allrunstop10=tempRunStop10.txt
-alldirect10=tempDirect10.txt
-
-CleanRemoveFiles $allpedes $allevent $alleventhk $allsensorhk $allconfig $allmonitor $allrunstart $allrunstop $alldirect  $allevent10 $alleventhk10 $allsensorhk10 $allconfig10 $allmonitor10 $allrunstart10 $allrunstop10 $alldirect10
+CleanRemoveFiles $allpedes $allevent $alleventhk $allsensorhk $allconfig $allmonitor $allrunstart $allrunstop $alldirect
 
 find $PEDESTAL_OUTPUT_DIRECTORY -name pedestalValues* > $allpedes
-
 find $END_DIR1 -name event0* > $allevent
 find $END_DIR1 -name eventHk* > $alleventhk
 find $END_DIR1 -name sensorHk* > $allsensorhk
@@ -79,22 +63,16 @@ find $END_DIR1 -name runStart* > $allrunstart
 find $END_DIR1 -name runStop* > $allrunstop
 find $END_DIR1 -name run0* > $alldirect
 
-
-find $END_DIR2 -name event0* > $allevent10
-find $END_DIR2 -name eventHk* > $alleventhk10
-find $END_DIR2 -name sensorHk* > $allsensorhk10
-find $END_DIR2 -name configFile* > $allconfig10
-find $END_DIR2 -name monitor* > $allmonitor10
-find $END_DIR2 -name runStart* > $allrunstart10
-find $END_DIR2 -name runStop* > $allrunstop10
-find $END_DIR2 -name run0* > $alldirect10
+echo "#######################################################"
+echo "# CHECKING BLINDED DATA ###############################"
+echo "#######################################################"
 
 for line in "${allfile[@]}"
 do
 
     ((cnt++))
     percentComplete=`awk "BEGIN{printf ${cnt}/${totcnt}*100.0}"`
-    if (( $cnt % 10 == 0 )) ; then echoloadTime $percentComplete ; fi
+    if (( $cnt % 10 == 0 )) ; then echoload $percentComplete ; fi
     
     runNum=`echo "$line" | sed -e "s^.*run_^^g" | awk -v FS='.' '{printf $1}'`
     cat $allpedes | grep -q "$runNum" && findRes=1 || findRes=0
@@ -103,77 +81,60 @@ do
     then
 	
 	rundir1=`grep $runNum $alldirect | sed -e "s^event.*^^g"`
-	rundir2=`grep $runNum $alldirect10 | sed -e "s^event.*^^g"`
 
-	#echoloadTime $percentComplete "$runNum: $rundir1"
-
-	if [ -d "$rundir1" ] && [ -d "$rundir2" ]
+	#echoload $percentComplete "$runNum: $rundir1"
+	
+	if [ -d "$rundir1" ]
 	then
-	    eventfileloc1=`grep $runNum $allevent`
-	    eventfileloc2=`grep $runNum $allevent10`
-	    if [ -f "$eventfileloc1" ] && [ -f "$eventfileloc2" ]
+	    dataraw=`du -b $line | cut -f 1`
+	    dataevent=`du -b $rundir1/ | cut -f 1`
+	    dataratio=`awk "BEGIN{ printf $dataevent/$dataraw }"`
+	    #echo -e "raw: $dataraw \t Event: $dataevent \t ratio: $dataratio"
+	    if [ `CompareGreaterThan $dataratio 0.125` = "1" ] || [ `CompareGreaterThan 0.08 $dataratio` = "1" ]
 	    then
-		#echoloadTime $percentComplete $asCyan "Found $eventfileloc1"
-		#echoloadTime $percentComplete $asCyan "Found $eventfileloc2"
-		datafull=`du -b $eventfileloc1 | cut -f 1`
-		data10=`du -b $eventfileloc2 | cut -f 1`
-		dataratio=`awk "BEGIN{ printf $data10/$datafull }"`
-		if [ `CompareGreaterThan $dataratio 0.125` = "1" ] || [ `CompareGreaterThan 0.08 $dataratio` = "1" ]
-		then
-		    echoloadTime $percentComplete "$runNum ratio: \033[37m\033[41m$dataratio\033[0m \t Full: $datafull  $line \t 10Percent: $data10 $rundir2"
-		    echo "$line" >> $allprobsten
-		fi
-		#echoloadTime $percentComplete $asCyan "run$runNum ratio: $dataratio"
+		echoload $percentComplete "$runNum ratio: \033[37m\033[41m$dataratio\033[0m \t raw: $dataraw  $line \t Event: $dataevent $rundir1"
+		echo "$line" >> $allprobs
+	    fi
 
-		tempvar=`grep $runNum $allrunstart10`
-		if [ -f "$tempvar" ] 
+	    findRes2=0
+	    findRes3=0
+	    message="$runNum Missing: "
+	    tempvar=`grep $runNum $allevent` ; if [ ! -f "$tempvar" ] ; then findRes3=1 ; message+="event$runNum.root " ; fi
+	    tempvar=`grep $runNum $alleventhk` ; if [ ! -f "$tempvar" ] ; then findRes2=1 ; message+="eventHk$runNum.root " ; fi
+	    tempvar=`grep $runNum $allsensorhk` ; if [ ! -f "$tempvar" ] ; then findRes2=1 ; message+="sensorHk$runNum.root " ; fi
+	    tempvar=`grep $runNum $allconfig` ; if [ ! -f "$tempvar" ] ; then findRes2=1 ; message+="configFile.$runNum.dat " ; fi
+	    tempvar=`grep $runNum $allmonitor` ; if [ ! -f "$tempvar" ] ; then findRes2=1 ; message+="monitor.run$runNum.dat " ; fi
+	    tempvar=`grep $runNum $allrunstart`
+	    if [ ! -f "$tempvar" ] 
+	    then
+		findRes2=1 
+		message+="runStart.run$runNum.dat " 
+	    else
+		runstartdatasize=`du -b $tempvar | cut -f 1`
+		if [ $runstartdatasize -gt 2 ] 
 		then
 		    tempunix=`cat $tempvar | grep Time: | sed -e "s^Time: ^^g"`
 		    tempyear=`date -d @$tempunix +"%Y"`
-		    if [ ! $tempyear -eq $DATAYEAR ] ; then echoloadTime $percentComplete $asBlue "$rundir1 needs to be moved to: $tempyear" ; fi
-		else
-		    tempvar=`grep $runNum $allrunstart`
-		    if [ -f "$tempvar" ] 
-		    then
-			tempunix=`cat $tempvar | grep Time: | sed -e "s^Time: ^^g"`
-			tempyear=`date -d @$tempunix +"%Y"`
-			if [ ! $tempyear -eq $DATAYEAR ] ; then echoloadTime $percentComplete $asBlue "$rundir1 needs to be moved to: $tempyear" ; fi
-		    fi
+		    if [ ! $tempyear -eq $DATAYEAR ] ; then echoload $percentComplete $asBlue "$rundir1 needs to be moved to: $tempyear" ; fi
 		fi
+	    fi
+	    tempvar=`grep $runNum $allrunstop` ; if [ ! -f "$tempvar" ] ; then findRes2=1 ; message+="runStop.run$runNum.dat " ; fi
 
-
-	    elif [ -f "$eventfileloc1" ] && [ ! -f "$eventfileloc2" ]
+	    if [ $findRes3 -eq 1 ]
 	    then
-		echoloadTime $percentComplete $asBlack "missing event$runNum.root in unblinded set (10 percent)"
-		echo "$line" >> $allprobsten
-	    elif [ ! -f "$eventfileloc1" ] && [ -f "$eventfileloc2" ]
-	    then
-		echoloadTime $percentComplete $asBlack "missing event$runNum.root in blinded set (Full)"
+		echoload $percentComplete $asBlack "$message" ;
 	    else
-		echoloadTime $percentComplete $asBlack "missing event$runNum.root in both unblinded and blinded sets"
-		echo "$line" >> $allprobsten
+		if [ $findRes2 -eq 1 ] ; then echoload $percentComplete $asPurple "$message" ; fi
 	    fi
 
-
-
-
-	elif [ -d "$rundir1" ] && [ ! -d "$rundir2" ]
-	then
-	    echoloadTime $percentComplete $asRed "missing run$runNum in unblinded set (10 percent)"
-	    echo "$line" >> $allprobsten
-	elif [ ! -d "$rundir1" ] && [ -d "$rundir2" ]
-	then
-	    echoloadTime $percentComplete $asRed "missing run$runNum in blinded set (Full)"
 	else
-	    echoloadTime $percentComplete $asRed "missing run$runNum in both unblinded and blinded sets "
-	    echo "$line" >> $allprobsten
+	    echoload $percentComplete $asRed "missing run$runNum"
+	    echo "$line" >> $allprobs
 	fi
-
-
-
     fi
     
 done
 
-CleanRemoveFiles $allpedes $allevent $alleventhk $allsensorhk $allconfig $allmonitor $allrunstart $allrunstop $alldirect $allevent10 $alleventhk10 $allsensorhk10 $allconfig10 $allmonitor10 $allrunstart10 $allrunstop10 $alldirect10
-echoloadTime 100
+CleanRemoveFiles $allpedes $allevent $alleventhk $allsensorhk $allconfig $allmonitor $allrunstart $allrunstop $alldirect
+echoload 100
+

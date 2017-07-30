@@ -28,7 +28,7 @@ sub SeparateTasks{
 	{
 	  if ($counter % $limit == 0)
 	  { # Current file is at the limit, start new file to continue
-	    #print "New File: $prefix". int($counter/$limit) . "$postfix\n";
+	      #print "New File: $prefix". int($counter/$limit) . "$postfix\n";
 	    if (defined($output))
 	    { # If some file existed before, then close it
 	      close(OUTPUT);

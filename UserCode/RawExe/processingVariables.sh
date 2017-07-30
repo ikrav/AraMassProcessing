@@ -2,7 +2,7 @@
 
 DATAYEAR=2016 # data year
 SWITCH10PER=1  # switch for 10 percent processing: 0: Full    1: 10 percent 
-STATIONNUM=01 #make sure to have leading zero if applicable
+STATIONNUM=03 #make sure to have leading zero if applicable
 
 # END_DIR: where product L1 files will go
 if [ $SWITCH10PER -eq 0 ] 
