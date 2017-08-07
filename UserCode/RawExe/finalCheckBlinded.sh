@@ -114,7 +114,7 @@ do
 		if [ $runstartdatasize -gt 2 ] 
 		then
 		    tempunix=`cat $tempvar | grep Time: | sed -e "s^Time: ^^g"`
-		    tempyear=`date -d @$tempunix +"%Y"`
+		    tempyear=`date -u -d @$tempunix +"%Y"`
 		    if [ ! $tempyear -eq $DATAYEAR ] ; then echoload $percentComplete $asBlue "$rundir1 needs to be moved to: $tempyear" ; fi
 		fi
 	    fi
