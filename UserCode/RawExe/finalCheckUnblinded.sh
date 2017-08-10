@@ -92,7 +92,7 @@ do
 	    #echo -e "raw: $dataraw \t Event: $dataevent \t ratio: $dataratio"
 	    if [ `CompareGreaterThan $dataratio 0.125` = "1" ] || [ `CompareGreaterThan 0.08 $dataratio` = "1" ]
 	    then
-		echoload $percentComplete "$runNum ratio: \033[37m\033[41m$dataratio\033[0m \t raw: $dataraw  $line \t Event: $dataevent $rundir1"
+		echoload $percentComplete "\033[37m\033[41m$runNum Bad ratio: $dataratio \t raw: $dataraw  $line \t Event: $dataevent $rundir1\033[0m"
 		echo "$line" >> $allprobs
 	    fi
 

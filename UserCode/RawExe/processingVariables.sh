@@ -1,8 +1,8 @@
 #!/bin/bash
 
 DATAYEAR=2016 # data year
-SWITCH10PER=0  # switch for 10 percent processing: 0: Full    1: 10 percent 
-STATIONNUM=02 #make sure to have leading zero if applicable
+SWITCH10PER=0  # switch for 10 percent processing: 0: Full (blinded)   1: 10 percent (unblinded)
+STATIONNUM=01 # station number, make sure to have leading zero if applicable
 
 # END_DIR: where product L1 files will go
 if [ $SWITCH10PER -eq 0 ] 

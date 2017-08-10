@@ -1,0 +1,66 @@
+
+Steps to process L0 data to L1:
+
+1) Set the enviroment variables:
+
+ARAMASSPROCESS   # location of AraMassProcessing
+ARARAWDATATOOLS  # location of AraRawDataTools
+
+Example:
+
+export ARAMASSPROCESS=/data/user/aschultz/Software/AraMassProcessing/
+export ARARAWDATATOOLS=/data/user/aschultz/ProCode/
+
+2) Set "DEFAULT_RESULTS_PATH" variable in UserCode/config.pm to the location where you want the log, out, and error files from condor to go.
+
+3) Change the top three variables in "processingVariables.sh" to suite your needs. For example:
+
+DATAYEAR=2016 # data year
+SWITCH10PER=0  # switch for 10 percent processing: 0: Full (blinded)   1: 10 percent (unblinded)
+STATIONNUM=01 # station number, make sure to have leading zero if applicable
+
+would be to create the ARA01 2016 blinded data set from ARA01 2016 raw data. If the directory structure should change in the future then the other variables may need to be changed. The other variables are:
+
+**[1] END_DIR  - where the output L1 files should go, this is the directory that should eventually have a bunch of directories that are named according to the day and month of the event files within.
+**[2] CONVENTION  - the beginning template name for the raw files to be processed.
+**[3] PEDESTAL_OUTPUT_DIRECTORY  - where the pedestal files should go.
+**[4] DATASTORE  - where the raw data is located.
+
+4) Run either commands:
+
+./getListFiles.sh
+
+OR
+
+sh getListFiles.sh
+
+to put together a text file containing the location(s) of the file(s) that will be processed. The output will go into the "Outputs" directory and will be named according to the convention "okayToProcessARA[STATION NUMBER].txt". This script will detect small and duplicate files. Small files have nothing useful in them, these can be found via a simple disk usuage check. If the file is small then it is not included in the output text file. Duplicate files are runs that have the same run number but are contained in different directories. The largest of the duplicates is kept for the output file, the others are neglected. Usually the case is that data is duplicated somehow (one files contains the same data twice) in one of the files, this leads to one being about twice as large as the other(s). When processing is complete the file will have about half as much disk usage as expected due to the internally duplicated data. This is nothing to be concerned about, the duplicated data does not make its way into the finished L1 file and thus the disk usage is about half of what it would be had it made its way into the L1 file.
+
+
+5) Log on to npx4 and go to your AraMassProcessing base directory (the one with run.pl in it). Run the command:
+
+./run.pl -file [[FILE]] -email email@email.com -mode Raw -asyn
+
+this will submit the processing jobs to condor. [[FILE]] should be the location of the text file created by step 2.
+
+When all jobs all have completed check that the error files from condor (located ${DEFAULT_RESULTS_PATH}/{DATE OF SUBMISSION}/Logs/System/) contain nothing pertinent to processing of L0 to L1. Just run the command (in the ${DEFAULT_RESULTS_PATH}/{DATE OF SUBMISSION}/Logs/System/ directory):
+
+cat err.*
+
+to check all error files.
+
+4) When all jobs on condor are finished the scripts:
+
+finalCheckBlinded.sh
+finalCheckUnblinded.sh
+
+can be used to check that all files are accounted for and have a [ L1 file size divided by L0 file size ] within a certain range (range was found empirically, bad disk ratio files tend to stick out quite a bit from the others so the range was set to keep good ones while flagging the ones that obvisously stick out). Pick the correct script for your purposes (blinded script for the blinded data set and likewise for the unblinded). They can be run just like with "getListFiles.sh". Many messages should be printed in the execution of one of the scripts, only messages in RED should be of concern. 
+
+The majority of the messages should be about non-essential files being missing. One or two messages should warn that the run should belong to a different year, just move all files belonging to that run by hand when validation and everything else that needs to be done is complete. 
+
+A message could pop up saying bad ratio, use your best judgement to decide if something is wrong or not. For example: if the run has a ratio of about 0.5 (blinded) and was one with a duplicate problem, then nothing needs to be done since this ratio is common for this situation. The ratio should be around 1 for blinded and around 0.1 for unblinded. One thing to try if one does encounter a bad ratio run is to just simply reprocess just that run, this usually solves the problem. If the problem persists then you'll need to dig deeper to discover the source of the problem. 
+
+5) The last step is to validate. Essentially all that needs to be done is to check that all files are readable (not corrupt). If the file is corrupted ask the icecube helpdesk for a backup copy of the run and reprocess the run, if all goes correct the file should not be corrupted anymore.
+
+For the unblinded set: reconstruction of all events should be sufficient for validation.
+For the blinded set: checking sample rate, number of points in the waveform, and RMS, for each channel, should be sufficient for validation.
