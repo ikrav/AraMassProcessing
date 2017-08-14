@@ -41,15 +41,15 @@ to put together a text file containing the location(s) of the file(s) that will 
 
 ./run.pl -file [[FILE]] -email email@email.com -mode Raw -asyn
 
-this will submit the processing jobs to condor. [[FILE]] should be the location of the text file created by step 2.
+this will submit the processing jobs to condor. [[FILE]] should be the location of the text file created by step 4.
 
 When all jobs all have completed check that the error files from condor (located ${DEFAULT_RESULTS_PATH}/{DATE OF SUBMISSION}/Logs/System/) contain nothing pertinent to processing of L0 to L1. Just run the command (in the ${DEFAULT_RESULTS_PATH}/{DATE OF SUBMISSION}/Logs/System/ directory):
 
 cat err.*
 
-to check all error files.
+to check all error files. If there was an error, the data for the run may be corrupted. Ask the icecube helpdesk for a backup copy of the run and reprocess the run. This usually solves the problem.
 
-4) When all jobs on condor are finished the scripts:
+6) When all jobs on condor are finished the scripts:
 
 finalCheckBlinded.sh
 finalCheckUnblinded.sh
@@ -60,7 +60,7 @@ The majority of the messages should be about non-essential files being missing. 
 
 A message could pop up saying bad ratio, use your best judgement to decide if something is wrong or not. For example: if the run has a ratio of about 0.5 (blinded) and was one with a duplicate problem, then nothing needs to be done since this ratio is common for this situation. The ratio should be around 1 for blinded and around 0.1 for unblinded. One thing to try if one does encounter a bad ratio run is to just simply reprocess just that run, this usually solves the problem. If the problem persists then you'll need to dig deeper to discover the source of the problem. 
 
-5) The last step is to validate. Essentially all that needs to be done is to check that all files are readable (not corrupt). If the file is corrupted ask the icecube helpdesk for a backup copy of the run and reprocess the run, if all goes correct the file should not be corrupted anymore.
+7) The last step is to validate. Essentially all that needs to be done is to check that all files are readable (not corrupt). If the file is corrupted ask the icecube helpdesk for a backup copy of the run and reprocess the run. If all goes correct the file should not be corrupted anymore.
 
 For the unblinded set: reconstruction of all events should be sufficient for validation.
 For the blinded set: checking sample rate, number of points in the waveform, and RMS, for each channel, should be sufficient for validation.
