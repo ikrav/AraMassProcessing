@@ -41,7 +41,7 @@ to put together a text file containing the location(s) of the file(s) that will 
 
 ./run.pl -file [[FILE]] -email email@email.com -mode Raw -asyn
 
-this will submit the processing jobs to condor. [[FILE]] should be the location of the text file created by step 4.
+this will submit the processing jobs to condor. [[FILE]] should be the location of the text file created by step 4. Pedestal files are processed automatically when processing the blinded set (SWITCH10PER = 0). Runs are placed in correct date directories automatically according to the runStart* file in the decompressed L0 file, if this file doesn't exsist then they are placed according to the date directory of the file in the unbiased (L0) set. Run numbers may change as sometimes the L0 tar file is named with an incorrect run number, the run number contained in the decompressed L0 file is taken instead.
 
 When all jobs all have completed check that the error files from condor (located ${DEFAULT_RESULTS_PATH}/{DATE OF SUBMISSION}/Logs/System/) contain nothing pertinent to processing of L0 to L1. Just run the command (in the ${DEFAULT_RESULTS_PATH}/{DATE OF SUBMISSION}/Logs/System/ directory):
 
