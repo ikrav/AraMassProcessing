@@ -16,7 +16,7 @@ if [ $# -gt 1 ]
 then
     allprobs=$2
 else
-    allprobs=$ARAMASSPROCESS/UserCode/RawExe/Outputs/problemFiles.Blinded.${DATAYEAR}.ARA${STATIONNUM}.txt
+    allprobs=$ARAMASSPROCESS/UserCode/RawExe/Outputs/problemFiles.Unblinded.${DATAYEAR}.ARA${STATIONNUM}.txt
 fi
 
 if [ -f $allprobs ] ; then rm $allprobs ; fi

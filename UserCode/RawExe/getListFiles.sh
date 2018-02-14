@@ -10,7 +10,8 @@ crtcnt=-1
 totcnt=${#ALL_FILES[@]}
 goodfiles=
 goodfilesOut=$ARAMASSPROCESS/UserCode/RawExe/Outputs/okayToProcessARA${STATIONNUM}.txt
-duplicates=$ARAMASSPROCESS/UserCode/RawExe/Outputs/duplicatesARA${STATIONNUM}.txt
+duplicates=$ARAMASSPROCESS/UserCode/RawExe/Outputs/duplicates.${DATAYEAR}.ARA${STATIONNUM}.txt
+smalls=$ARAMASSPROCESS/UserCode/RawExe/Outputs/smalls.${DATAYEAR}.ARA${STATIONNUM}.txt
 
 if [ -f $goodfilesOut ] ; then rm $goodfilesOut ; fi
 if [ -f $duplicates ] ; then rm $duplicates ; fi
@@ -51,6 +52,7 @@ do
 	fi
     else
 	echoloadTime $percentComplete $asBlue "Small file: $ifile \t Data Size: $datasize kB"
+	echo "$runnum" >> $smalls
     fi
     
 done
