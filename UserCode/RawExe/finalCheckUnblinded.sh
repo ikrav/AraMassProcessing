@@ -16,7 +16,7 @@ if [ $# -gt 1 ]
 then
     allprobs=$2
 else
-    allprobs=$ARAMASSPROCESS/UserCode/RawExe/Outputs/problemFiles.Blinded.${DATAYEAR}.ARA${STATIONNUM}.txt
+    allprobs=$ARAMASSPROCESS/UserCode/RawExe/Outputs/problemFiles.Unblinded.${DATAYEAR}.ARA${STATIONNUM}.txt
 fi
 
 if [ -f $allprobs ] ; then rm $allprobs ; fi
@@ -92,7 +92,7 @@ do
 	    #echo -e "raw: $dataraw \t Event: $dataevent \t ratio: $dataratio"
 	    if [ `CompareGreaterThan $dataratio 0.125` = "1" ] || [ `CompareGreaterThan 0.08 $dataratio` = "1" ]
 	    then
-		echoload $percentComplete "\033[37m\033[41m$runNum Bad ratio: $dataratio \t raw: $dataraw  $line \t Event: $dataevent $rundir1\033[0m"
+		echoload $percentComplete "\033[37m\033[41m$runNum Bad ratio: $dataratio \t raw: $dataraw  $line \t Event Data: $dataevent B \t $rundir1\033[0m"
 		echo "$line" >> $allprobs
 	    fi
 

@@ -6,12 +6,12 @@ source $ARAMASSPROCESS/UserCode/RawExe/processingVariables.sh
 echo "Searching $DATASTORE/ for *ARA${STATIONNUM}*.tar"
 
 ALL_FILES=(`find $DATASTORE/ -name "*ARA${STATIONNUM}*.tar"`)
-crtcnt=0
+crtcnt=-1
 totcnt=${#ALL_FILES[@]}
 goodfiles=
-goodfilesTemp=$ARAMASSPROCESS/UserCode/RawExe/Outputs/goodTempFile.txt
 goodfilesOut=$ARAMASSPROCESS/UserCode/RawExe/Outputs/okayToProcessARA${STATIONNUM}.txt
-duplicates=$ARAMASSPROCESS/UserCode/RawExe/Outputs/duplicatesARA${STATIONNUM}.txt
+duplicates=$ARAMASSPROCESS/UserCode/RawExe/Outputs/duplicates.${DATAYEAR}.ARA${STATIONNUM}.txt
+smalls=$ARAMASSPROCESS/UserCode/RawExe/Outputs/smalls.${DATAYEAR}.ARA${STATIONNUM}.txt
 
 if [ -f $goodfilesOut ] ; then rm $goodfilesOut ; fi
 if [ -f $duplicates ] ; then rm $duplicates ; fi
@@ -34,34 +34,34 @@ do
 	if [ $findRes -eq 0 ] 
 	then
 	    goodfiles+=`printf "%s " $ifile`
-	    echo "$ifile" >> $goodfilesTemp
 	else 
-	    loc=`cat "$goodfilesTemp" | grep "$runnum"`
+	    loc=`echo "$goodfiles" | sed -e 's/\ /\n/g' | grep "$runnum"`
 	    datasize2=`du -k $loc | awk '{ printf $1 }'`
 	    echoloadTime $percentComplete $asRed "Duplicate found: $runnum"
 	    if [ $datasize -gt $datasize2 ]
 	    then
 		echoloadTime $percentComplete $asGreen "removing $loc from list"
-		goodfiles=`echo $goodfiles | sed -e "s^$loc^^g"`
-		cat "$goodfilesTemp" | sed -e "s^$loc^^g" > $goodfilesTemp
+		goodfiles=`echo $goodfiles | sed -e "s^ $loc^^g"`
 		goodfiles+=`printf " %s " $ifile`
 	    else
 		echoloadTime $percentComplete $asGreen "keeping $loc in list"
 	    fi
-	    echoloadTime $percentComplete "file1: $loc \t Data Size: $datasize2 kB \nfile2: $ifile \t Data Size: $datasize kB"
+	    echoloadTime $percentComplete "file1: $loc \t Data Size: $datasize2 kB"
+	    echoloadTime $percentComplete "file2: $ifile \t Data Size: $datasize kB"
 	    echo "$runnum" >> $duplicates
 	fi
     else
 	echoloadTime $percentComplete $asBlue "Small file: $ifile \t Data Size: $datasize kB"
+	echo "$runnum" >> $smalls
     fi
     
 done
 
 echoloadTime 100
 
-if [ -f $goodfilesTemp ] ; then rm $goodfilesTemp ; fi
+#for ifile in $goodfiles
+#do
+#    echo "$ifile" >> $goodfilesOut
+#done
 
-for ifile in $goodfiles
-do
-    echo "$ifile" >> $goodfilesOut
-done
+echo "$goodfiles" | sed -e 's^\ ^\n^g' >> "$goodfilesOut"
